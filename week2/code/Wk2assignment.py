@@ -29,7 +29,6 @@ for row in range(len(df)):    # this for-loop distinguishs x1 and x2 according t
         x1RealMinus.append(df.values[row][0])
         x2RealMinus.append(df.values[row][1])
 
-
 xTrain, xTest, resultTrain, resultTest = train_test_split(xData, resultData, test_size=0.2) # split the data for training and testing.
 
 xTestArray = np.array(xTest) #make an array of x test data
