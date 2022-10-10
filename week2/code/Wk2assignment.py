@@ -20,8 +20,6 @@ x2RealMinus = []
 xData = df.iloc[:,0:2]     # construct a 999x2 matrix which consists only x1 and x2
 resultData = df.iloc[:,2]  # construct a 999x1 matrix which consists only values 1 or -1
 
-print(resultData)
-
 for row in range(len(df)):    # this for-loop distinguishs x1 and x2 according to its value, 1 or -1.
 
     if df.values[row][2] == 1:
