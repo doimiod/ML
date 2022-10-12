@@ -31,5 +31,7 @@ ax.scatter(x1, x2, y)
 
 plt.show()
 
+# x1Cube = x1[0]**3
+
 xTrain, xTest, resultTrain, resultTest = train_test_split(x, y, test_size=0.2) # split the data for training and testing.
 
