@@ -35,7 +35,7 @@ ax.scatter(x1, x2, y)
 ax.set_xlabel("x1", color="green", size=15)
 ax.set_ylabel("x2", color="green", size=15)
 ax.set_zlabel("y", color="green", size=15)
-ax.set_title("3d plots")
+ax.set_title("3d plot")
 
 # x1Cube = x1[0]**3
 
@@ -45,26 +45,48 @@ poly = PolynomialFeatures(5)
 xPoly = poly.fit_transform(x)
 print(xPoly)
 
+Xtest = []
+grid = np.linspace(5, 5)
+for i in grid:
+    for j in grid:
+        Xtest.append([i, j])
+Xtest = np.array(Xtest)
+print(Xtest)
+XtestPoly = poly.fit_transform(Xtest)
+
+Xtest1 = Xtest[:, 0]
+print(Xtest1)
+Xtest2 = Xtest[:, 1]
+
 
 def lassoRegression(c):
     model = linear_model.Lasso(alpha=(1/c))
     model.fit(xPoly, y)
     print("when c = ", c)
-    print("slope = ", model.coef_)                       # get a slope here
-    # get an intercept here
-    print("intercept = ", model.intercept_)
+    print("slope = ", model.coef_)             # get a slope here
+    print("intercept = ", model.intercept_)   # get an intercept here
 
-    import numpy as np 
-    Xtest = []
-    grid = np.linspace(5, 5)
-    for i in grid:
-        for j in grid:
-            Xtest.append([i, j])
-    Xtest = np.array(Xtest)
+       
+    yPred = model.predict(XtestPoly)
+    
+    fig = plt.figure()
+    plt.rc('font', size=18)
+    plt.rcParams["figure.constrained_layout.use"] = True
+    ax = fig.add_subplot(111, projection="3d")
+    ax.scatter(Xtest1, Xtest2, yPred)
+    ax.plot_trisurf(x1, x2, yPred)
+    ax.set_xlabel("x1", color="green", size=15)
+    ax.set_ylabel("x2", color="green", size=15)
+    ax.set_zlabel("y predicted", color="green", size=15)
+    ax.set_title("3d plot when c = " + str(c))
 
-    yPred = model.predict(xPoly)
 
 
+def ridgeRegression(c):
+    model = linear_model.Ridge(alpha = 1/(2*c))
+
+
+lassoRegression(0.001)
 lassoRegression(1.0)
 lassoRegression(10)
 lassoRegression(100)
