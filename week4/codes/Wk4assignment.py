@@ -24,7 +24,6 @@ from sklearn.metrics import roc_curve
 from sklearn.dummy import DummyClassifier
 
 
-# df = pd.read_csv('/Users/doimasanari/Desktop/ML/week4/codes/# id:18-36--18-0.csv')
 df1 = pd.read_csv('/Users/doimasanari/Desktop/ML/week4/codes/# id:12-24-12-1,,.csv')
 
 df2 = pd.read_csv('/Users/doimasanari/Desktop/ML/week4/codes/# id:12--12-12-1.csv')
@@ -195,6 +194,8 @@ def Qb(x, x1, x2, y):
     plt.rc('font', size=18)
     plt.rcParams["figure.constrained_layout.use"] = True 
     plt.errorbar(k_range, mean_error, yerr=std_error, linewidth = 1, label = "f1 score")
+    plt.xlabel("K")
+    plt.ylabel("f1 scores")
     plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
     plt.show()
 
