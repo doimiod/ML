@@ -98,7 +98,7 @@ def Qa(x, x1, x2, y):
         xPolyTest = poly.fit_transform(xTest)
         model = LogisticRegression(penalty = "l2").fit(xPolyTrain, yTrain)
         yPred = model.predict(xPolyTest)
-        getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, polyPower, 0)
+        getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, polyPower, 0, 0)
 
         score = cross_val_score(model, xPoly, y, cv=5, scoring="f1")
         print("when power of polynomial = ", polyPower)
@@ -115,12 +115,15 @@ def Qa(x, x1, x2, y):
     plt.rcParams["figure.constrained_layout.use"] = True 
     plt.errorbar(polyPowers, mean_error, yerr=std_error, linewidth = 1, label = "f1 score")
     plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
+    plt.title("Logistic Regression")
+    plt.xlabel("power of polynomios")
+    plt.ylabel("fa scores")
 
     # a (ii)
     print("(ii)")
     mean_error=[]
     std_error=[]
-    Ci_range = [0.01, 0.1, 1, 5, 10, 25, 30, 35, 50, ]
+    Ci_range = [0.01, 0.1, 1, 5, 10, 25, 30, 35, 50]
     for Ci in Ci_range:
         # polyPowers = range(2)
         # for polyPower in polyPowers:
@@ -130,7 +133,7 @@ def Qa(x, x1, x2, y):
         xPolyTest = poly.fit_transform(xTest) 
         model = LogisticRegression(C = Ci).fit(xPolyTrain, yTrain)
         yPred = model.predict(xPolyTest)
-        getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, 0, Ci)
+        getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, 0, Ci, 0)
 
         score = cross_val_score(model, xPoly, y, cv=5, scoring="f1")
         print("when c = %d, and power of polynomial = %d" % (Ci, 2))
@@ -150,28 +153,69 @@ def Qa(x, x1, x2, y):
     plt.show()
 
 
-def getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, polyPower, Ci):
+def getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, polyPower, Ci, k):
 
     getANormalGraph(x1, x2, y, False)
     plt.scatter(xTest1[yPred>0], xTest2[yPred>0], color="red", marker="+", label = "predicted +1")
     plt.scatter(xTest1[yPred<0], xTest2[yPred<0], color="yellow", marker="+", label = "predicted -1")
     plt.xlabel("x_1")
     plt.ylabel("x_2")
-    if Ci == 0:
+    if Ci == 0 and k == 0:
         plt.title("Logistic Regression when power of polynomial = " + str(polyPower))
-    else:
+    elif k == 0 and polyPower == 0:
         plt.title("Logistic Regression model when C =  " + str(Ci))
+    else:
+        plt.title("when k =  " + str(k))
     plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
 
 def splitTrainAndTest(x, y):
     xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.2) # split the data for training and testing.
     xTest1 = xTest.iloc[:, 0]
     xTest2 = xTest.iloc[:, 1]
-    return xTrain, xTest, yTrain, xTest1, xTest2
+    return xTrain, xTest, yTrain, xTest1, xTest2, yTest
 
 
-def Qb():
-       print("a") 
+def Qb(x, x1, x2, y):
+
+    bestK = 0
+    bestScore = 0
+    xTrain, xTest, yTrain, xTest1, xTest2 = splitTrainAndTest(x, y)
+    k_range = range(1, 15)
+    from sklearn.neighbors import KNeighborsClassifier
+    mean_error=[]
+    std_error=[]
+    for k in k_range :
+        model = KNeighborsClassifier(n_neighbors=k, weights='uniform').fit(xTrain, yTrain)
+        score = cross_val_score(model, x, y, cv=5, scoring="f1")
+        scoreNoCv = model.score(xTrain, yTrain)
+        print("when k = ", k)
+        print("f1 score = ", scoreNoCv)
+        if bestScore < scoreNoCv :
+            bestScore = scoreNoCv
+            bestK = k
+        yPred = model.predict(xTest)
+        getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, 0, 0, k)
+        mean_error.append(np.array(score).mean()) 
+        std_error.append(np.array(score).std())
+
+    print("Best k = ", bestK)
+    plt.figure()
+    plt.rc('font', size=18)
+    plt.rcParams["figure.constrained_layout.use"] = True 
+    plt.errorbar(k_range, mean_error, yerr=std_error, linewidth = 1, label = "f1 score")
+    plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)    
+
+def Qd(x, y):
+
+    xTrain, xTest, yTrain, xTest1, xTest2, yTest = splitTrainAndTest(x, y)
+    
+    from sklearn.svm import LinearSVC
+    model = LinearSVC(C=1.0).fit(xTrain, yTrain)
+    from sklearn.metrics import roc_curve
+    fpr, tpr, _ = roc_curve(yTest,model.decision_function(xTest))
+    plt.plot(fpr,tpr)
+    plt.plot([0, 1], [0, 1], color='green',linestyle='--')
+    
 
 
 # get a graph with just a plain data
@@ -181,8 +225,11 @@ getANormalGraph(data2X1, data2X2, data2Y, True)
 Qa(data1X, data1X1, data1X2, data1Y)
 Qa(data2X, data2X1, data2X2, data2Y)
 
+Qb(data1X, data1X1, data1X2, data1Y)
+Qb(data2X, data2X1, data2X2, data2Y)
 
-# cross_val_score(model, X, y, cv=5, scoring="f1")
+Qd(data1X, data1Y)
+
 
 def aaa():
     data1X = np.array(data1X).reshape(-1,2)
