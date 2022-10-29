@@ -80,20 +80,29 @@ def getANormalGraph(x1, x2, y, onlyThisGraph):
 # getANormalGraph(data1X1, data1X2, data1Y)
 # getANormalGraph(data2X1, data2X2, data2Y)
 
-def Qi(x, x1, x2, y):
+def Qa(x, x1, x2, y):
+
+    # a(i)
     mean_error=[]
     std_error=[]
 
     polyPowers = range(0, 10)
 
+    xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.2) # split the data for training and testing.
+    xTest1 = xTest.iloc[:, 0]
+    xTest2 = xTest.iloc[:, 1]
     for polyPower in polyPowers:
 
         poly = PolynomialFeatures(polyPower)
-        xPoly = poly.fit_transform(x) 
-        model = LogisticRegression(penalty = "l2").fit(xPoly, y)
-        yPred = model.predict(xPoly)
+        xPoly = poly.fit_transform(x)
+        xPolyTrain = poly.fit_transform(xTrain)
+        xPolyTest = poly.fit_transform(xTest)
+        model = LogisticRegression(penalty = "l2").fit(xPolyTrain, yTrain)
+        yPred = model.predict(xPolyTest)
+        getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, polyPower, 0)
+
         score = cross_val_score(model, xPoly, y, cv=5, scoring="f1")
-        print("when power of polynomial up to = ", polyPower)
+        print("when power of polynomial = ", polyPower)
         print("f1 score = ", score)
         
         # score.append(model.score(xPoly, y))
@@ -102,16 +111,13 @@ def Qi(x, x1, x2, y):
         mean_error.append(np.array(score).mean()) 
         std_error.append(np.array(score).std())
 
-        getPredictionPlot(x1, x2, y, yPred, polyPower, 0)
-
-        
     plt.figure()
     plt.rc('font', size=18)
     plt.rcParams["figure.constrained_layout.use"] = True 
     plt.errorbar(polyPowers, mean_error, yerr=std_error, linewidth = 1, label = "f1 score")
     plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
 
-    
+    # a (ii)
     print("(ii)")
     mean_error=[]
     std_error=[]
@@ -120,21 +126,24 @@ def Qi(x, x1, x2, y):
         # polyPowers = range(2)
         # for polyPower in polyPowers:
         poly = PolynomialFeatures(2)
-        xPoly = poly.fit_transform(x) 
-        model = LogisticRegression(C = Ci).fit(xPoly, y)
-        yPred = model.predict(xPoly)
+        xPoly = poly.fit_transform(x)
+        xPolyTrain = poly.fit_transform(xTrain)
+        xPolyTest = poly.fit_transform(xTest) 
+        model = LogisticRegression(C = Ci).fit(xPolyTrain, yTrain)
+        yPred = model.predict(xPolyTest)
+        getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, 0, Ci)
+
         score = cross_val_score(model, xPoly, y, cv=5, scoring="f1")
-        print("when c = %d, and power of polynomial up to = %d" % (Ci, 2))
+        print("when c = %d, and power of polynomial = %d" % (Ci, 2))
         print("f1 score = ", score)
         mean_error.append(np.array(score).mean()) 
         std_error.append(np.array(score).std())
-
-        getPredictionPlot(x1, x2, y, yPred, 0, Ci)
 
     plt.figure()    
     plt.rc("font", size=18)
     plt.rcParams["figure.constrained_layout.use"] = True
     plt.errorbar(Ci_range, mean_error, yerr=std_error, linewidth=1, label = "f1 score")
+    
     plt.xlabel("C value")
     plt.ylabel("F1 Score")
     plt.title("Cross validation of C")
@@ -142,27 +151,31 @@ def Qi(x, x1, x2, y):
     plt.show()
 
 
-def getPredictionPlot(x1, x2, y, yPred, polyPower, Ci):
+def getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, polyPower, Ci):
 
     getANormalGraph(x1, x2, y, False)
-    plt.scatter(x1[yPred>0], x2[yPred>0], color="red", marker="+", label = "predicted +1")
-    plt.scatter(x1[yPred<0], x2[yPred<0], color="yellow", marker="+", label = "predicted -1")
+    plt.scatter(xTest1[yPred>0], xTest2[yPred>0], color="red", marker="+", label = "predicted +1")
+    plt.scatter(xTest1[yPred<0], xTest2[yPred<0], color="yellow", marker="+", label = "predicted -1")
     plt.xlabel("x_1")
     plt.ylabel("x_2")
     if Ci == 0:
-        plt.title("when polynomial features up to " + str(polyPower))
+        plt.title("Logistic Regression when power of polynomial = " + str(polyPower))
     else:
         plt.title("Logistic Regression model when C =  " + str(Ci))
     plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
 
 
-# getGraph(data1X, data1X1, data1X2, data1Y)
+def Qb():
+       print("a") 
 
+
+
+# get a graph with just a plain data
 getANormalGraph(data1X1, data1X2, data1Y, True)
 getANormalGraph(data2X1, data2X2, data2Y, True)
 
-Qi(data1X, data1X1, data1X2, data1Y)
-Qi(data2X, data2X1, data2X2, data2Y)
+Qa(data1X, data1X1, data1X2, data1Y)
+Qa(data2X, data2X1, data2X2, data2Y)
 
 
 # cross_val_score(model, X, y, cv=5, scoring="f1")
