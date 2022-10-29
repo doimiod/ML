@@ -1,6 +1,7 @@
 from cProfile import label
 from calendar import c
 from re import X
+from statistics import mean
 # from statistics import LinearRegression
 from tkinter import Y
 from turtle import color
@@ -162,10 +163,8 @@ def Qa(x, x1, x2, y):
 
 def Qb(x, x1, x2, y):
 
-    bestK = 0
-    bestScore = 0
     xTrain, xTest, yTrain, xTest1, xTest2, yTest = splitTrainAndTest(x, y)
-    k_range = range(1, 15)
+    k_range = range(1, 20)
     mean_error=[]
     std_error=[]
     for k in k_range :
@@ -174,22 +173,16 @@ def Qb(x, x1, x2, y):
         # getting model score with using cross-validation = 5
         score = cross_val_score(model, x, y, cv=5, scoring="f1")
 
-        # getting a model score without cross-validation
-        scoreNoCv = model.score(xTrain, yTrain)
         print("when k = ", k)
-        print("f1 score = ", scoreNoCv)
-        # looking for the best k without CV
-        if bestScore < scoreNoCv :
-            bestScore = scoreNoCv
-            bestK = k
-
+        print("f1 score = ", score)
+        print("mean = ", score.mean())
+    
         # getting a prediction plot 
         yPred = model.predict(xTest)
         getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, 0, 0, k)
         mean_error.append(np.array(score).mean()) 
         std_error.append(np.array(score).std())
 
-    print("Best k = ", bestK)
     plt.figure()
     plt.rc('font', size=18)
     plt.rcParams["figure.constrained_layout.use"] = True 
@@ -259,7 +252,7 @@ def Qd(x, x1, x2, y, p, k, c):
     #  getting ROC curve for kNN classifier
     model = KNeighborsClassifier(n_neighbors=k, weights='uniform').fit(xTrain, yTrain)
     fpr, tpr, _ = roc_curve(yTest ,model.predict_proba(xTest)[:, 1]) # confidence decision probability page 15 of evaluation
-    plt.plot(fpr,tpr, color = "blue" ,label = "KNN classifer when k = 1")
+    plt.plot(fpr,tpr, color = "blue" ,label = "KNN classifer when k = " + str(k))
 
     # getting ROC curve for Dummy classifer that makes random predictions
     model = DummyClassifier(strategy='uniform').fit(xTrain, yTrain) # expected one of ('most_frequent', 'stratified', 'uniform', 'constant', 'prior')
@@ -286,7 +279,7 @@ def Qd(x, x1, x2, y, p, k, c):
 getANormalGraph(data1X1, data1X2, data1Y, True)
 getANormalGraph(data2X1, data2X2, data2Y, True)
 
-#  Qa
+# Qa
 Qa(data1X, data1X1, data1X2, data1Y)
 Qa(data2X, data2X1, data2X2, data2Y)
 
@@ -295,12 +288,12 @@ Qb(data1X, data1X1, data1X2, data1Y)
 Qb(data2X, data2X1, data2X2, data2Y)
 
 # Qc
-Qc(data1X, data1X1, data1X2, data1Y, 2, 1, 25)
-Qc(data2X, data2X1, data2X2, data2Y, 2, 1, 25)
+Qc(data1X, data1X1, data1X2, data1Y, 2, 13, 25)
+Qc(data2X, data2X1, data2X2, data2Y, 2, 20, 25)
 
 # Qd
-Qd(data1X, data1X1, data1X2, data1Y, 2, 1, 25)
-Qd(data2X, data2X1, data2X2, data2Y, 2, 1, 25)
+Qd(data1X, data1X1, data1X2, data1Y, 2, 13, 25)
+Qd(data2X, data2X1, data2X2, data2Y, 2, 20, 25)
 
 
 
