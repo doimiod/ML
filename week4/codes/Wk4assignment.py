@@ -88,9 +88,8 @@ def Qa(x, x1, x2, y):
 
     polyPowers = range(0, 10)
 
-    xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.2) # split the data for training and testing.
-    xTest1 = xTest.iloc[:, 0]
-    xTest2 = xTest.iloc[:, 1]
+    xTrain, xTest, yTrain, xTest1, xTest2 = splitTrainAndTest(x, y)
+
     for polyPower in polyPowers:
 
         poly = PolynomialFeatures(polyPower)
@@ -164,10 +163,15 @@ def getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, polyPower, Ci):
         plt.title("Logistic Regression model when C =  " + str(Ci))
     plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
 
+def splitTrainAndTest(x, y):
+    xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.2) # split the data for training and testing.
+    xTest1 = xTest.iloc[:, 0]
+    xTest2 = xTest.iloc[:, 1]
+    return xTrain, xTest, yTrain, xTest1, xTest2
+
 
 def Qb():
        print("a") 
-
 
 
 # get a graph with just a plain data
