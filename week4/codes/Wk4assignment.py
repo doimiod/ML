@@ -16,7 +16,10 @@ from mpl_toolkits.mplot3d import Axes3D
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import KFold
-from sklearn.model_selection import cross_val_score 
+from sklearn.model_selection import cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import roc_curve
+from sklearn.dummy import DummyClassifier
 
 
 # df = pd.read_csv('/Users/doimasanari/Desktop/ML/week4/codes/# id:18-36--18-0.csv')
@@ -36,24 +39,6 @@ data2X1 = df2.iloc[:, 0]
 data2X2 = df2.iloc[:, 1]
 data2Y = df2.iloc[:, 2]
 
-# print(x)
-
-
-# split the data into 2 here
-# for row in range(len(df)):
-    
-#     if row != 0 and "#" in df.values[row][0]:
-#         data1X = df.iloc[0:row, 0:2]
-#         data1X1 = df.iloc[0:row, 0]
-#         data1X2 = df.iloc[0:row, 1]
-#         data1Y = df.iloc[0:row, 2]
-
-#         data2X = df.iloc[row+1:len(df), 0:2]
-#         data2X1 = df.iloc[row+1:len(df), 0]
-#         data2X2 = df.iloc[row+1:len(df), 1]
-#         data2Y = df.iloc[row+1:len(df), 2]
-#         break
-
 # print(data1X)
 # print(data1X1)
 # print(data1X2)
@@ -61,7 +46,6 @@ data2Y = df2.iloc[:, 2]
 # print(data2X1)
 # print(data2X2)
 # print(data2Y)
-
 
 def getANormalGraph(x1, x2, y, onlyThisGraph):
     # it was really unclear if plotting actual graoh and prediction together in the same graoh.
@@ -181,7 +165,6 @@ def Qb(x, x1, x2, y):
     bestScore = 0
     xTrain, xTest, yTrain, xTest1, xTest2 = splitTrainAndTest(x, y)
     k_range = range(1, 15)
-    from sklearn.neighbors import KNeighborsClassifier
     mean_error=[]
     std_error=[]
     for k in k_range :
@@ -205,30 +188,68 @@ def Qb(x, x1, x2, y):
     plt.errorbar(k_range, mean_error, yerr=std_error, linewidth = 1, label = "f1 score")
     plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)    
 
-def Qd(x, y):
+def Qd(x, x1, x2, y):
 
     xTrain, xTest, yTrain, xTest1, xTest2, yTest = splitTrainAndTest(x, y)
-    
-    from sklearn.svm import LinearSVC
-    model = LinearSVC(C=1.0).fit(xTrain, yTrain)
-    from sklearn.metrics import roc_curve
-    fpr, tpr, _ = roc_curve(yTest,model.decision_function(xTest))
-    plt.plot(fpr,tpr)
+
+    poly = PolynomialFeatures(2)
+    xPoly = poly.fit_transform(x)
+    xPolyTrain = poly.fit_transform(xTrain)
+    xPolyTest = poly.fit_transform(xTest) 
+    model = LogisticRegression(C = 10).fit(xPolyTrain, yTrain)
+    fpr, tpr, _ = roc_curve(yTest ,model.decision_function(xPolyTest)) # confidence decision probability page 15 of evaluation
+    plt.plot(fpr,tpr, color = "orange" ,label = "Logistic Regression Classfier when power of polynomial is 2 and C = 10")
     plt.plot([0, 1], [0, 1], color='green',linestyle='--')
+
+
+    model = KNeighborsClassifier(n_neighbors=1, weights='uniform').fit(xTrain, yTrain)
+    # xTest = np.array(xTest).reshape(1,1)
+    fpr, tpr, _ = roc_curve(yTest ,model.predict_proba(xTest)[:, 1]) # confidence decision probability page 15 of evaluation
+    plt.plot(fpr,tpr, color = "blue" ,label = "KNN clssifer when k = 1")
+    # plt.plot([0, 1], [0, 1], color='green',linestyle='--')
+
+    model = DummyClassifier(strategy='most_frequent').fit(xTrain, yTrain) # expected one of ('most_frequent', 'stratified', 'uniform', 'constant', 'prior')
+    # xTest = np.array(xTest).reshape(1,1)
+    fpr, tpr, _ = roc_curve(yTest ,model.predict_proba(xTest)[:, 1]) # confidence decision probability page 15 of evaluation
+    plt.plot(fpr,tpr, color = "black" ,label = "Baseline most frequent") 
+    # plt.plot([0, 1], [0, 1], color='green',linestyle='--')
+
+    model = DummyClassifier(strategy='stratified').fit(xTrain, yTrain) # expected one of ('most_frequent', 'stratified', 'uniform', 'constant', 'prior')
+    # xTest = np.array(xTest).reshape(1,1)
+    fpr, tpr, _ = roc_curve(yTest ,model.predict_proba(xTest)[:, 1]) # confidence decision probability page 15 of evaluation
+    plt.plot(fpr,tpr, color = "green" ,label = "Baseline stratified") 
+    # plt.plot([0, 1], [0, 1], color='green',linestyle='--')
+
+    model = DummyClassifier(strategy='uniform').fit(xTrain, yTrain) # expected one of ('most_frequent', 'stratified', 'uniform', 'constant', 'prior')
+    # xTest = np.array(xTest).reshape(1,1)
+    fpr, tpr, _ = roc_curve(yTest ,model.predict_proba(xTest)[:, 1]) # confidence decision probability page 15 of evaluation
+    plt.plot(fpr,tpr, color = "yellow" ,label = "Baseline uniform") 
+    # plt.plot([0, 1], [0, 1], color='green',linestyle='--')
+
+    plt.xlabel("False positive rate") # named it true positive and false negative
+    plt.ylabel("True positive rate") # True positive we predict label +1 and correct label is +1, false positive we predict label +1 and correct label is -1
+    plt.title("ROC curve comparing classfiers")
+    plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0) 
+
+
+
     
 
 
 # get a graph with just a plain data
-getANormalGraph(data1X1, data1X2, data1Y, True)
-getANormalGraph(data2X1, data2X2, data2Y, True)
+# getANormalGraph(data1X1, data1X2, data1Y, True)
+# getANormalGraph(data2X1, data2X2, data2Y, True)
 
-Qa(data1X, data1X1, data1X2, data1Y)
-Qa(data2X, data2X1, data2X2, data2Y)
+# Qa(data1X, data1X1, data1X2, data1Y)
+# Qa(data2X, data2X1, data2X2, data2Y)
 
-Qb(data1X, data1X1, data1X2, data1Y)
-Qb(data2X, data2X1, data2X2, data2Y)
+# Qb(data1X, data1X1, data1X2, data1Y)
+# Qb(data2X, data2X1, data2X2, data2Y)
 
-Qd(data1X, data1Y)
+Qd(data2X, data2X1, data2X2, data2Y)
+
+
+
 
 
 def aaa():
@@ -285,6 +306,22 @@ plt.show()
 # data2X1 = []
 # data2X2 = []
 # data2Y = []
+
+# print(x)
+# split the data into 2 here
+# for row in range(len(df)):
+    
+#     if row != 0 and "#" in df.values[row][0]:
+#         data1X = df.iloc[0:row, 0:2]
+#         data1X1 = df.iloc[0:row, 0]
+#         data1X2 = df.iloc[0:row, 1]
+#         data1Y = df.iloc[0:row, 2]
+
+#         data2X = df.iloc[row+1:len(df), 0:2]
+#         data2X1 = df.iloc[row+1:len(df), 0]
+#         data2X2 = df.iloc[row+1:len(df), 1]
+#         data2Y = df.iloc[row+1:len(df), 2]
+#         break
 
 # found = False
 
