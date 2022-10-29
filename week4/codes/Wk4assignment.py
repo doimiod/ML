@@ -25,11 +25,9 @@ from sklearn.dummy import DummyClassifier
 
 
 # df = pd.read_csv('/Users/doimasanari/Desktop/ML/week4/codes/# id:18-36--18-0.csv')
-df1 = pd.read_csv('/Users/doimasanari/Desktop/ML/week4/codes/# id:12--12-12-1.csv')
+df1 = pd.read_csv('/Users/doimasanari/Desktop/ML/week4/codes/# id:12-24-12-1,,.csv')
 
-df2 = pd.read_csv('/Users/doimasanari/Desktop/ML/week4/codes/# id:12-24-12-1,,.csv')
-
-# x = df.iloc[0:1455, 0:2]
+df2 = pd.read_csv('/Users/doimasanari/Desktop/ML/week4/codes/# id:12--12-12-1.csv')
 
 data1X = df1.iloc[:, 0:2]
 data1X1 = df1.iloc[:, 0]
@@ -50,7 +48,6 @@ data2Y = df2.iloc[:, 2]
 # print(data2Y)
 
 def getANormalGraph(x1, x2, y, onlyThisGraph):
-    # it was really unclear if plotting actual graoh and prediction together in the same graoh.
     # the graph below is an actual graph
     plt.figure()
     plt.rc('font', size=18)
@@ -64,86 +61,9 @@ def getANormalGraph(x1, x2, y, onlyThisGraph):
         plt.title("Actual graph with no prediction")
         plt.show()    
 
-# getANormalGraph(data1X1, data1X2, data1Y)
-# getANormalGraph(data2X1, data2X2, data2Y)
-
-def Qa(x, x1, x2, y):
-
-    # a(i)
-    mean_error=[]
-    std_error=[]
-
-    polyPowers = range(0, 10)
-
-    xTrain, xTest, yTrain, xTest1, xTest2, yTest = splitTrainAndTest(x, y)
-
-    for polyPower in polyPowers:
-
-        poly = PolynomialFeatures(polyPower)
-        xPoly = poly.fit_transform(x)
-        xPolyTrain = poly.fit_transform(xTrain)
-        xPolyTest = poly.fit_transform(xTest)
-        model = LogisticRegression(penalty = "l2").fit(xPolyTrain, yTrain)
-        yPred = model.predict(xPolyTest)
-        getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, polyPower, 0, 0)
-
-        score = cross_val_score(model, xPoly, y, cv=5, scoring="f1")
-        print("when power of polynomial = ", polyPower)
-        print("f1 score = ", score)
-        
-        # score.append(model.score(xPoly, y))
-        # error.append(model.score(xPoly, y))
-        # error.append(mean_squared_error(y, yPred))
-        mean_error.append(np.array(score).mean()) 
-        std_error.append(np.array(score).std())
-
-    plt.figure()
-    plt.rc('font', size=18)
-    plt.rcParams["figure.constrained_layout.use"] = True 
-    plt.errorbar(polyPowers, mean_error, yerr=std_error, linewidth = 1, label = "f1 score")
-    plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
-    plt.title("Cross Validation using Logistic Regression")
-    plt.xlabel("power of polynomios")
-    plt.ylabel("f1 scores")
-    plt.show()
-
-    # a (ii)
-    print("(ii)")
-    mean_error=[]
-    std_error=[]
-    Ci_range = [0.01, 0.1, 1, 5, 10, 25, 30, 35, 50]
-    for Ci in Ci_range:
-        # polyPowers = range(2)
-        # for polyPower in polyPowers:
-        poly = PolynomialFeatures(2)
-        xPoly = poly.fit_transform(x)
-        xPolyTrain = poly.fit_transform(xTrain)
-        xPolyTest = poly.fit_transform(xTest) 
-        model = LogisticRegression(C = Ci).fit(xPolyTrain, yTrain)
-        yPred = model.predict(xPolyTest)
-        getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, 0, Ci, 0)
-
-        score = cross_val_score(model, xPoly, y, cv=5, scoring="f1")
-        print("when c = %d, and power of polynomial = %d" % (Ci, 2))
-        print("f1 score = ", score)
-        mean_error.append(np.array(score).mean()) 
-        std_error.append(np.array(score).std())
-
-    plt.figure()    
-    plt.rc("font", size=18)
-    plt.rcParams["figure.constrained_layout.use"] = True
-    plt.errorbar(Ci_range, mean_error, yerr=std_error, linewidth=1, label = "f1 score")
-    
-    plt.xlabel("C value")
-    plt.ylabel("F1 Score")
-    plt.title("Cross validation of C")
-    plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
-    plt.show()
-
-
 def getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, polyPower, Ci, k):
 
-    getANormalGraph(x1, x2, y, False)
+    getANormalGraph(x1, x2, y, False) # combine actual data with predicted data
     plt.scatter(xTest1[yPred>0], xTest2[yPred>0], color="red", marker="+", label = "predicted +1")
     plt.scatter(xTest1[yPred<0], xTest2[yPred<0], color="yellow", marker="+", label = "predicted -1")
     plt.xlabel("x_1")
@@ -163,6 +83,84 @@ def splitTrainAndTest(x, y):
     return xTrain, xTest, yTrain, xTest1, xTest2, yTest
 
 
+def Qa(x, x1, x2, y):
+
+    # a(i)
+    mean_error=[]
+    std_error=[]
+
+    polyPowers = range(0, 10)
+    # split the data into train and test
+    xTrain, xTest, yTrain, xTest1, xTest2, yTest = splitTrainAndTest(x, y)
+
+    # getting a logisticRegression model with polynomial features and serch for the maximum order of polynomial to use
+    for polyPower in polyPowers:
+
+        #  getttig a model with polynomial features
+        poly = PolynomialFeatures(polyPower)
+        xPoly = poly.fit_transform(x)
+        xPolyTrain = poly.fit_transform(xTrain)
+        xPolyTest = poly.fit_transform(xTest)
+        model = LogisticRegression(penalty = "l2").fit(xPolyTrain, yTrain)
+        yPred = model.predict(xPolyTest)
+        getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, polyPower, 0, 0)
+
+        # getting a f1 score with cross validation = 5
+        score = cross_val_score(model, xPoly, y, cv=5, scoring="f1")
+        print("when power of polynomial = ", polyPower)
+        print("f1 score = ", score)
+        
+        # score.append(model.score(xPoly, y))
+        # error.append(model.score(xPoly, y))
+        # error.append(mean_squared_error(y, yPred))
+
+        mean_error.append(np.array(score).mean()) 
+        std_error.append(np.array(score).std())
+
+    plt.figure()
+    plt.rc('font', size=18)
+    plt.rcParams["figure.constrained_layout.use"] = True 
+    plt.errorbar(polyPowers, mean_error, yerr=std_error, linewidth = 1, label = "f1 score")
+    plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
+    plt.title("Cross Validation of power of polynomial for Logistic Regression")
+    plt.xlabel("power of polynomios")
+    plt.ylabel("f1 scores")
+    plt.show()
+
+    # a (ii) looking for the weight C given to the penalty in the cost function
+    print("(ii)")
+    mean_error=[]
+    std_error=[]
+    Ci_range = [0.01, 0.1, 1, 5, 10, 25, 30, 35, 50]
+    for Ci in Ci_range:
+        # polyPowers = range(2)
+        # for polyPower in polyPowers:
+        poly = PolynomialFeatures(2)
+        xPoly = poly.fit_transform(x)
+        xPolyTrain = poly.fit_transform(xTrain)
+        xPolyTest = poly.fit_transform(xTest) 
+        model = LogisticRegression(C = Ci).fit(xPolyTrain, yTrain)
+        yPred = model.predict(xPolyTest)
+        getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, 0, Ci, 0)
+
+        #  getting f1 score
+        score = cross_val_score(model, xPoly, y, cv=5, scoring="f1")
+        print("when c = %d, and power of polynomial = %d" % (Ci, 2))
+        print("f1 score = ", score)
+        mean_error.append(np.array(score).mean()) 
+        std_error.append(np.array(score).std())
+
+    plt.figure()    
+    plt.rc("font", size=18)
+    plt.rcParams["figure.constrained_layout.use"] = True
+    plt.errorbar(Ci_range, mean_error, yerr=std_error, linewidth=1, label = "f1 score")
+    plt.xlabel("C value")
+    plt.ylabel("F1 Score")
+    plt.title("Cross validation of L2 and C for Logistic Regression")
+    plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
+    plt.show()
+
+
 def Qb(x, x1, x2, y):
 
     bestK = 0
@@ -172,14 +170,21 @@ def Qb(x, x1, x2, y):
     mean_error=[]
     std_error=[]
     for k in k_range :
+        # train a kNN classifier on the data
         model = KNeighborsClassifier(n_neighbors=k, weights='uniform').fit(xTrain, yTrain)
+        # getting model score with using cross-validation = 5
         score = cross_val_score(model, x, y, cv=5, scoring="f1")
+
+        # getting a model score without cross-validation
         scoreNoCv = model.score(xTrain, yTrain)
         print("when k = ", k)
         print("f1 score = ", scoreNoCv)
+        # looking for the best k without CV
         if bestScore < scoreNoCv :
             bestScore = scoreNoCv
             bestK = k
+
+        # getting a prediction plot 
         yPred = model.predict(xTest)
         getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, 0, 0, k)
         mean_error.append(np.array(score).mean()) 
@@ -194,24 +199,24 @@ def Qb(x, x1, x2, y):
     plt.show()
 
 
-def Qc(x, x1, x2, y, p, k):
+def Qc(x, x1, x2, y, p, k, c):
 
     # split the data for training and testing.
     xTrain, xTest, yTrain, xTest1, xTest2, yTest = splitTrainAndTest(x, y)
     
     # getting confusion matrix for Logistic Regression
-    poly = PolynomialFeatures(2)
+    poly = PolynomialFeatures(p)
     xPoly = poly.fit_transform(x)
     xPolyTrain = poly.fit_transform(xTrain)
     xPolyTest = poly.fit_transform(xTest)
-    model = LogisticRegression(penalty = "l2").fit(xPolyTrain, yTrain)
+    model = LogisticRegression(penalty = "l2", C=c).fit(xPolyTrain, yTrain)
     yPred = model.predict(xPolyTest)
     print("confusion matrix for Logistic Regression with power of polynomial = " + str(p))
     print(confusion_matrix(yTest, yPred))
     print(classification_report(yTest, yPred))
 
 
-    # getting confusion matrix for NN classifier
+    # getting confusion matrix for kNN classifier
     model = KNeighborsClassifier(n_neighbors=k, weights='uniform').fit(xTrain, yTrain)
     yPred = model.predict(xTest)
     print(confusion_matrix(yTest, yPred))
@@ -235,24 +240,36 @@ def Qc(x, x1, x2, y, p, k):
     print(classification_report(yTest, ydummy))
 
 
-def Qd(x, x1, x2, y):
+def Qd(x, x1, x2, y, p, k, c):
 
+    #  split the data for training and testing.
     xTrain, xTest, yTrain, xTest1, xTest2, yTest = splitTrainAndTest(x, y)
 
-    poly = PolynomialFeatures(2)
+    #  getting ROC curve for logisticRegression
+    poly = PolynomialFeatures(p)
     xPoly = poly.fit_transform(x)
     xPolyTrain = poly.fit_transform(xTrain)
     xPolyTest = poly.fit_transform(xTest) 
-    model = LogisticRegression(C = 10).fit(xPolyTrain, yTrain)
+    model = LogisticRegression(penalty = "l2", C = c).fit(xPolyTrain, yTrain)
     fpr, tpr, _ = roc_curve(yTest ,model.decision_function(xPolyTest)) # confidence decision probability page 15 of evaluation
     plt.plot(fpr,tpr, color = "orange" ,label = "Logistic Regression")
     # plt.plot([0, 1], [0, 1], color='green',linestyle='--')
 
-
-    model = KNeighborsClassifier(n_neighbors=1, weights='uniform').fit(xTrain, yTrain)
+    #  getting ROC curve for kNN classifier
+    model = KNeighborsClassifier(n_neighbors=k, weights='uniform').fit(xTrain, yTrain)
     fpr, tpr, _ = roc_curve(yTest ,model.predict_proba(xTest)[:, 1]) # confidence decision probability page 15 of evaluation
-    plt.plot(fpr,tpr, color = "blue" ,label = "KNN clssifer when k = 1")
+    plt.plot(fpr,tpr, color = "blue" ,label = "KNN classifer when k = 1")
 
+    # getting ROC curve for Dummy classifer that makes random predictions
+    model = DummyClassifier(strategy='uniform').fit(xTrain, yTrain) # expected one of ('most_frequent', 'stratified', 'uniform', 'constant', 'prior')
+    fpr, tpr, _ = roc_curve(yTest ,model.predict_proba(xTest)[:, 1]) # confidence decision probability page 15 of evaluation
+    plt.plot(fpr,tpr, color = "yellow" ,label = "Baseline (AUC = 0.5)") 
+    plt.xlabel("False positive rate") # named it true positive and false negative
+    plt.ylabel("True positive rate") # True positive we predict label +1 and correct label is +1, false positive we predict label +1 and correct label is -1
+    plt.title("ROC curve comparing classfiers")
+    plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0) 
+    plt.show()
+    
     # model = DummyClassifier(strategy='most_frequent').fit(xTrain, yTrain) # expected one of ('most_frequent', 'stratified', 'uniform', 'constant', 'prior')
     # fpr, tpr, _ = roc_curve(yTest ,model.predict_proba(xTest)[:, 1]) # confidence decision probability page 15 of evaluation
     # plt.plot(fpr,tpr, color = "black" ,label = "Baseline most frequent") 
@@ -263,37 +280,42 @@ def Qd(x, x1, x2, y):
     # plt.plot(fpr,tpr, color = "green" ,label = "Baseline stratified") 
     # # plt.plot([0, 1], [0, 1], color='green',linestyle='--')
 
-    model = DummyClassifier(strategy='uniform').fit(xTrain, yTrain) # expected one of ('most_frequent', 'stratified', 'uniform', 'constant', 'prior')
-    fpr, tpr, _ = roc_curve(yTest ,model.predict_proba(xTest)[:, 1]) # confidence decision probability page 15 of evaluation
-    plt.plot(fpr,tpr, color = "yellow" ,label = "Baseline (AUC = 0.5)") 
-
-    plt.xlabel("False positive rate") # named it true positive and false negative
-    plt.ylabel("True positive rate") # True positive we predict label +1 and correct label is +1, false positive we predict label +1 and correct label is -1
-    plt.title("ROC curve comparing classfiers")
-    plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0) 
-    plt.show()
-
-
 
 # get a graph with just a plain data
-# getANormalGraph(data1X1, data1X2, data1Y, True)
-# getANormalGraph(data2X1, data2X2, data2Y, True)
+getANormalGraph(data1X1, data1X2, data1Y, True)
+getANormalGraph(data2X1, data2X2, data2Y, True)
 
-# #  Qa
-# Qa(data1X, data1X1, data1X2, data1Y)
-# Qa(data2X, data2X1, data2X2, data2Y)
+#  Qa
+Qa(data1X, data1X1, data1X2, data1Y)
+Qa(data2X, data2X1, data2X2, data2Y)
 
-# # Qb
-# Qb(data1X, data1X1, data1X2, data1Y)
-# Qb(data2X, data2X1, data2X2, data2Y)
+# Qb
+Qb(data1X, data1X1, data1X2, data1Y)
+Qb(data2X, data2X1, data2X2, data2Y)
 
-Qc(data2X, data2X1, data2X2, data2Y, 2, 1)
+# Qc
+Qc(data1X, data1X1, data1X2, data1Y, 2, 1, 25)
+Qc(data2X, data2X1, data2X2, data2Y, 2, 1, 25)
 
 # Qd
-# Qd(data1X, data1X1, data1X2, data1Y)
-# Qd(data2X, data2X1, data2X2, data2Y)
+Qd(data1X, data1X1, data1X2, data1Y, 2, 1, 25)
+Qd(data2X, data2X1, data2X2, data2Y, 2, 1, 25)
 
-plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
