@@ -134,8 +134,7 @@ def Qa(x, x1, x2, y):
     Ci_range = [0.01, 0.1, 1, 5, 10, 25, 30, 35, 50]
     for Ci in Ci_range:
         # polyPowers = range(2)
-        # for polyPower in polyPowers:
-        poly = PolynomialFeatures(2)
+        # for polyPower in polyPowers:  
         xPoly = poly.fit_transform(x)
         xPolyTrain = poly.fit_transform(xTrain)
         xPolyTest = poly.fit_transform(xTest) 
