@@ -83,7 +83,7 @@ def splitTrainAndTest(x, y):
     return xTrain, xTest, yTrain, xTest1, xTest2, yTest
 
 
-def Qa(x, x1, x2, y):
+def Qa(x, x1, x2, y, isData1):
 
     # a(i)
     mean_error=[]
@@ -123,7 +123,7 @@ def Qa(x, x1, x2, y):
     plt.errorbar(polyPowers, mean_error, yerr=std_error, linewidth = 1, label = "f1 score")
     plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
     plt.title("Cross Validation of power of polynomial for Logistic Regression")
-    plt.xlabel("power of polynomios")
+    plt.xlabel("power of polynomials")
     plt.ylabel("f1 scores")
     plt.show()
 
@@ -135,11 +135,14 @@ def Qa(x, x1, x2, y):
     for Ci in Ci_range:
         # polyPowers = range(2)
         # for polyPower in polyPowers:
-        poly = PolynomialFeatures(2)
+        if isData1 == True:
+            poly = PolynomialFeatures(2)
+        else:
+            poly = PolynomialFeatures(1)   
         xPoly = poly.fit_transform(x)
         xPolyTrain = poly.fit_transform(xTrain)
         xPolyTest = poly.fit_transform(xTest) 
-        model = LogisticRegression(C = Ci).fit(xPolyTrain, yTrain)
+        model = LogisticRegression(penalty = "l2", C = Ci).fit(xPolyTrain, yTrain)
         yPred = model.predict(xPolyTest)
         getPredictionPlot(x1, x2, y, xTest1, xTest2, yPred, 0, Ci, 0)
 
@@ -167,6 +170,7 @@ def Qb(x, x1, x2, y):
     k_range = range(1, 20)
     mean_error=[]
     std_error=[]
+    print("Qb")
     for k in k_range :
         # train a kNN classifier on the data
         model = KNeighborsClassifier(n_neighbors=k, weights='uniform').fit(xTrain, yTrain)
@@ -189,6 +193,7 @@ def Qb(x, x1, x2, y):
     plt.errorbar(k_range, mean_error, yerr=std_error, linewidth = 1, label = "f1 score")
     plt.xlabel("K")
     plt.ylabel("f1 scores")
+    plt.title("Cross validation of KNN classifer with K")
     plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
     plt.show()
 
@@ -219,12 +224,12 @@ def Qc(x, x1, x2, y, p, k, c):
     print(confusion_matrix(yTest, yPred))
     print(classification_report(yTest, yPred))
     
-    # getting confusion matrix for baseline classifier that always predicts the most frequent class in the training data
-    dummy = DummyClassifier(strategy="most_frequent").fit(xTrain, yTrain)
-    ydummy = dummy.predict(xTest)
-    print("confusion matrix for baseline classifiers that always predicts the most frequent class")
-    print(confusion_matrix(yTest, ydummy))
-    print(classification_report(yTest, ydummy))
+    # # getting confusion matrix for baseline classifier that always predicts the most frequent class in the training data
+    # dummy = DummyClassifier(strategy="most_frequent").fit(xTrain, yTrain)
+    # ydummy = dummy.predict(xTest)
+    # print("confusion matrix for baseline classifiers that always predicts the most frequent class")
+    # print(confusion_matrix(yTest, ydummy))
+    # print(classification_report(yTest, ydummy))
 
     # getting confusion matrix for baseline classifier that makes random predictions
     dummy = DummyClassifier(strategy="uniform").fit(xTrain, yTrain)
@@ -277,22 +282,22 @@ def Qd(x, x1, x2, y, p, k, c):
 
 # get a graph with just a plain data
 getANormalGraph(data1X1, data1X2, data1Y, True)
-getANormalGraph(data2X1, data2X2, data2Y, True)
+# getANormalGraph(data2X1, data2X2, data2Y, True)
 
-# Qa
-Qa(data1X, data1X1, data1X2, data1Y)
-Qa(data2X, data2X1, data2X2, data2Y)
+# # Qa
+# Qa(data1X, data1X1, data1X2, data1Y, True)
+# Qa(data2X, data2X1, data2X2, data2Y, False)
 
 # Qb
 Qb(data1X, data1X1, data1X2, data1Y)
 Qb(data2X, data2X1, data2X2, data2Y)
 
 # Qc
-Qc(data1X, data1X1, data1X2, data1Y, 2, 13, 25)
+Qc(data1X, data1X1, data1X2, data1Y, 2, 13, 10)
 Qc(data2X, data2X1, data2X2, data2Y, 2, 20, 25)
 
 # Qd
-Qd(data1X, data1X1, data1X2, data1Y, 2, 13, 25)
+Qd(data1X, data1X1, data1X2, data1Y, 2, 13, 10)
 Qd(data2X, data2X1, data2X2, data2Y, 2, 20, 25)
 
 
