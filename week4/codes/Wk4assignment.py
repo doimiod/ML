@@ -282,11 +282,11 @@ def Qd(x, x1, x2, y, p, k, c):
 
 # get a graph with just a plain data
 getANormalGraph(data1X1, data1X2, data1Y, True)
-# getANormalGraph(data2X1, data2X2, data2Y, True)
+getANormalGraph(data2X1, data2X2, data2Y, True)
 
-# # Qa
-# Qa(data1X, data1X1, data1X2, data1Y, True)
-# Qa(data2X, data2X1, data2X2, data2Y, False)
+# Qa
+Qa(data1X, data1X1, data1X2, data1Y, True)
+Qa(data2X, data2X1, data2X2, data2Y, False)
 
 # Qb
 Qb(data1X, data1X1, data1X2, data1Y)
