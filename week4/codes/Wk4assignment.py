@@ -83,7 +83,7 @@ def splitTrainAndTest(x, y):
     return xTrain, xTest, yTrain, xTest1, xTest2, yTest
 
 
-def Qa(x, x1, x2, y, isData1):
+def Qa(x, x1, x2, y):
 
     # a(i)
     mean_error=[]
@@ -134,11 +134,7 @@ def Qa(x, x1, x2, y, isData1):
     Ci_range = [0.01, 0.1, 1, 5, 10, 25, 30, 35, 50]
     for Ci in Ci_range:
         # polyPowers = range(2)
-        # for polyPower in polyPowers:
-        if isData1 == True:
-            poly = PolynomialFeatures(2)
-        else:
-            poly = PolynomialFeatures(1)   
+        # for polyPower in polyPowers:  
         xPoly = poly.fit_transform(x)
         xPolyTrain = poly.fit_transform(xTrain)
         xPolyTest = poly.fit_transform(xTest) 
@@ -285,8 +281,8 @@ getANormalGraph(data1X1, data1X2, data1Y, True)
 getANormalGraph(data2X1, data2X2, data2Y, True)
 
 # Qa
-Qa(data1X, data1X1, data1X2, data1Y, True)
-Qa(data2X, data2X1, data2X2, data2Y, False)
+Qa(data1X, data1X1, data1X2, data1Y)
+Qa(data2X, data2X1, data2X2, data2Y)
 
 # Qb
 Qb(data1X, data1X1, data1X2, data1Y)
