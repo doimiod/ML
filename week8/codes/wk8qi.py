@@ -61,12 +61,14 @@ print(r.size)
 kernel1 = [-1, -1, -1, -1, 8, -1, -1, -1, -1]
 kernel1 = np.array(kernel1)
 kernel1 = kernel1.reshape(-1,3)
+print(kernel1)
 convolvedR = convolve(r, kernel1)
 Image.fromarray(np.uint8(convolvedR)).show()
 
 kernel2 = [0, -1, 0, -1, 8, -1, 0, -1, 0]
 kernel2 = np.array(kernel2)
 kernel2 = kernel2.reshape(-1,3)
+print(kernel2)
 convolvedR = convolve(r, kernel2)
 Image.fromarray(np.uint8(convolvedR)).show()
     
