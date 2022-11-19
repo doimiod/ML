@@ -12,9 +12,9 @@ def convolve(array, kernel):
     size = 0
     kSize = math.sqrt(kernel.size)  # kernel size. if the kernel is 3*3, the size is 3
     kSize = int(kSize)
-    arrSize = math.sqrt(array.size) # priginal array size. if it is 3*3, the size is 3
+    arrSize = math.sqrt(array.size) # original array size. if it is 3*3, the size is 3
     arrSize = int(arrSize)
-    size = arrSize - kSize + 1
+    size = arrSize - kSize + 1       # convolved array size is calculated from original array size - kernel size + 1
     print(size)
     for i in range(size):
         for j in range(size):
