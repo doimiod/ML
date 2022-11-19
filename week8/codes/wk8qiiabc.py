@@ -7,6 +7,9 @@ from keras.layers import Conv2D, MaxPooling2D, LeakyReLU
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
+from sklearn.dummy import DummyClassifier
+
+
 plt.rc('font', size=18)
 plt.rcParams['figure.constrained_layout.use'] = True
 import sys
@@ -17,7 +20,11 @@ input_shape = (32, 32, 3)
 
 # the data, split between train and test sets
 (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
+# n = 5k or 10k or 20k or 40k
 n=5000
+# n=10000 
+# n=20000
+# n=40000
 x_train = x_train[1:n]; y_train=y_train[1:n]
 #x_test=x_test[1:500]; y_test=y_test[1:500]
 
@@ -36,9 +43,11 @@ if use_saved_model:
 else:
 	model = keras.Sequential()
 	model.add(Conv2D(16, (3,3), padding='same', input_shape=x_train.shape[1:],activation='relu'))
-	model.add(Conv2D(16, (3,3), strides=(2,2), padding='same', activation='relu'))
+	# model.add(Conv2D(16, (3,3), strides=(2,2), padding='same', activation='relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2))) # for q c i and ii
 	model.add(Conv2D(32, (3,3), padding='same', activation='relu'))
-	model.add(Conv2D(32, (3,3), strides=(2,2), padding='same', activation='relu'))
+	# model.add(Conv2D(32, (3,3), strides=(2,2), padding='same', activation='relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2))) # for q c i andii
 	model.add(Dropout(0.5))
 	model.add(Flatten())
 	model.add(Dense(num_classes, activation='softmax',kernel_regularizer=regularizers.l1(0.0001)))
@@ -73,5 +82,21 @@ print(confusion_matrix(y_train1,y_pred))
 preds = model.predict(x_test)
 y_pred = np.argmax(preds, axis=1)
 y_test1 = np.argmax(y_test, axis=1)
+print(classification_report(y_test1, y_pred))
+print(confusion_matrix(y_test1,y_pred))
+
+dummy = DummyClassifier().fit(x_train, y_train)
+
+ydummy = dummy.predict(x_train)
+y_pred = np.argmax(ydummy, axis=1)
+y_train1 = np.argmax(y_train, axis=1)
+print("for training data, confusion matrix for baseline classifiers that always predicts the most frequent class")
+print(classification_report(y_train1, y_pred))
+print(confusion_matrix(y_train1,y_pred))
+
+ydummy = dummy.predict(x_test)
+y_pred = np.argmax(ydummy, axis=1)
+y_test1 = np.argmax(y_test, axis=1)
+print("for test data, confusion matrix for baseline classifiers that always predicts the most frequent class")
 print(classification_report(y_test1, y_pred))
 print(confusion_matrix(y_test1,y_pred))

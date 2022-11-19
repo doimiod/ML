@@ -7,6 +7,9 @@ from keras.layers import Conv2D, MaxPooling2D, LeakyReLU
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
+from sklearn.dummy import DummyClassifier
+
+
 plt.rc('font', size=18)
 plt.rcParams['figure.constrained_layout.use'] = True
 import sys
@@ -35,7 +38,9 @@ if use_saved_model:
 	model = keras.models.load_model("cifar.model")
 else:
 	model = keras.Sequential()
-	model.add(Conv2D(16, (3,3), padding='same', input_shape=x_train.shape[1:],activation='relu'))
+	model.add(Conv2D(8, (3,3), padding='same', input_shape=x_train.shape[1:],activation='relu'))
+	model.add(Conv2D(8, (3,3), strides=(2,2), padding='same', activation='relu'))
+	model.add(Conv2D(16, (3,3), padding='same', activation='relu'))
 	model.add(Conv2D(16, (3,3), strides=(2,2), padding='same', activation='relu'))
 	model.add(Conv2D(32, (3,3), padding='same', activation='relu'))
 	model.add(Conv2D(32, (3,3), strides=(2,2), padding='same', activation='relu'))
@@ -73,5 +78,21 @@ print(confusion_matrix(y_train1,y_pred))
 preds = model.predict(x_test)
 y_pred = np.argmax(preds, axis=1)
 y_test1 = np.argmax(y_test, axis=1)
+print(classification_report(y_test1, y_pred))
+print(confusion_matrix(y_test1,y_pred))
+
+dummy = DummyClassifier().fit(x_train, y_train)
+
+ydummy = dummy.predict(x_train)
+y_pred = np.argmax(ydummy, axis=1)
+y_train1 = np.argmax(y_train, axis=1)
+print("for training data, confusion matrix for baseline classifiers that always predicts the most frequent class")
+print(classification_report(y_train1, y_pred))
+print(confusion_matrix(y_train1,y_pred))
+
+ydummy = dummy.predict(x_test)
+y_pred = np.argmax(ydummy, axis=1)
+y_test1 = np.argmax(y_test, axis=1)
+print("for test data, confusion matrix for baseline classifiers that always predicts the most frequent class")
 print(classification_report(y_test1, y_pred))
 print(confusion_matrix(y_test1,y_pred))
