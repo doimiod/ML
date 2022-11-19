@@ -47,7 +47,7 @@ else:
 	model.add(MaxPooling2D(pool_size=(2, 2))) # for q c i and ii
 	model.add(Conv2D(32, (3,3), padding='same', activation='relu'))
 	# model.add(Conv2D(32, (3,3), strides=(2,2), padding='same', activation='relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2))) # for q c i andii
+	model.add(MaxPooling2D(pool_size=(2, 2))) # for q c i and ii
 	model.add(Dropout(0.5))
 	model.add(Flatten())
 	model.add(Dense(num_classes, activation='softmax',kernel_regularizer=regularizers.l1(0.0001)))
