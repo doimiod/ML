@@ -86,39 +86,10 @@ def cleanup_texts(data, column):
 reviewData = pd.read_csv('/Users/doimasanari/Documents/ML/final/code/reviews.csv')
 
 # Sort the DataFrame by the values in column listing_id
-reviewData = reviewData.sort_values(by='listing_id')
-
-# def is_nonEnglish(text):
-#   # Check if the comments contain any non-English characters or emoji (non-ascii characters)
-#   if re.search(r'[^\x00-\x7F]', text):
-#     return True                       # True if the text contains any non-English characters
-#   return False
-
-# # Convert the values in the comments column to strings
-# reviewData['comments'] = reviewData['comments'].astype(str)
-
-# # Apply the is_notEnglish function to each row of the comments columns and delete the row if it has non-english words
-# filters = reviewData['comments'].apply(is_nonEnglish)
-# reviewData = reviewData[filters == False]  
+reviewData = reviewData.sort_values(by='listing_id') 
 
 # Remove the rows that have null
-
 reviewData = reviewData[reviewData["comments"].notnull()]
-
-# print("----------------------------------------------------------------")
-# print(reviewData)
-
-# # Stop words list in English
-# stop_words = stopwords.words('english')
-
-# def cleanup_texts(text):
-#     text = "".join([word for word in text if word not in string.punctuation])
-#     text = text.lower()
-#     text = " ".join([word for word in text.split() if word not in stop_words])
-#     return text
-
-# # Remove stop words and punctuations from the commentsmake and make text lower case 
-# reviewData['comments'] = reviewData['comments'].apply(lambda x: cleanup_texts(x))
 
 reviewData = cleanup_texts(reviewData, "comments")
 
@@ -137,8 +108,6 @@ temp = pd.read_csv('/Users/doimasanari/Documents/ML/final/code/listings.csv')
 # Delete the columns that are not relevant to the training.
 listingData = listingData.drop(["listing_url", "scrape_id", "last_scraped", "picture_url", "host_id" ,"host_url", "host_name", "host_neighbourhood", "host_thumbnail_url", "host_picture_url",
                                 "host_verifications", "neighbourhood", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "bathrooms", "calendar_last_scraped", "first_review", "last_review","license", "calendar_updated", "calculated_host_listings_count_shared_rooms" ], axis = 1)
-
-# print(listingData)
 
 listingData = listingData[listingData["review_scores_rating"].notnull()]
 print("___________________________________________________________")
