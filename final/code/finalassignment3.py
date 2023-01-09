@@ -11,8 +11,6 @@ Original file is located at
 #### install *langdetect*
 """
 
-!pip install langdetect
-
 """#### Connecting Google Drive"""
 
 from cProfile import label
@@ -50,8 +48,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 from array import array
 
-from google.colab import drive
-drive.mount('/content/drive')
+# from google.colab import drive
+# drive.mount('/content/drive')
 
 def cleanup_texts(data, column):
 
@@ -88,7 +86,7 @@ def cleanup_texts(data, column):
 
 """#### Preprocessing in reviews.scv"""
 
-reviewData = pd.read_csv('/content/drive/MyDrive//final/code/reviews.csv')
+reviewData = pd.read_csv('/Users/doimasanari/Documents/ML/final/code/reviews.csv')
 
 # Sort the DataFrame by the values in column listing_id
 # reviewData = reviewData.sort_values(by='listing_id')
@@ -100,7 +98,7 @@ reviewData = cleanup_texts(reviewData, "comments")
 
 reviewData.to_csv('cleanedup_review.csv', index=False)
 
-listingData = pd.read_csv('/content/drive/MyDrive/final/code/listings.csv')
+listingData = pd.read_csv('/Users/doimasanari/Documents/ML/final/code/listings.csv')
 # Delete the row where listingData is null
 listingData = listingData[listingData["review_scores_rating"].notnull()]
 
@@ -159,7 +157,7 @@ listingData = listingData[listingData["review_scores_communication"].notnull()]
 # y = listingData['host_response_rate']
 
 avg_rate = 0
-
+# Get average
 for row in range(len(listingData["review_scores_communication"])):
   if row in listingData["review_scores_communication"]:
     avg_rate = avg_rate + listingData["review_scores_communication"][row]
@@ -167,15 +165,13 @@ for row in range(len(listingData["review_scores_communication"])):
 avg_rate = avg_rate / len(listingData["review_scores_communication"])
 print(avg_rate)
 
-colors_listll = []
-label = []
-
 def to_float(x):
     if pd.isnull(x):
         return 0
     else:
         return float(x.replace("%", ""))
 
+# Remove $
 listingData['host_response_rate'] = listingData['host_response_rate'].apply(to_float)
 
 # Plot the data
@@ -183,21 +179,33 @@ plt.figure()
 plt.rc('font', size=18)
 plt.rcParams["figure.constrained_layout.use"] = True
 
+# Parameter for legend
+legend_one = 0
+legend_two = 0
+
 # If the rate > average_rate, plot red colour, otherwise blue
 for row in range(len(listingData["review_scores_communication"])):
   if row in listingData["review_scores_communication"]:
     # If the rate > average_rate, plot red colour, otherwise blue
     if listingData["review_scores_communication"][row] > avg_rate:
-      plt.scatter(listingData["review_scores_communication"][row], listingData['host_response_rate'][row], color="red", label = "high rate")
+      plt.scatter(listingData["review_scores_communication"][row], listingData['host_response_rate'][row], color="red")
+      if legend_one == 0:
+        plt.scatter(listingData["review_scores_communication"][row], listingData['host_response_rate'][row], color="red", label = "high rate")
+        plt.legend()
+        legend_one = 1
     elif listingData["review_scores_communication"][row] <= avg_rate:
-      plt.scatter(listingData["review_scores_communication"][row], listingData['host_response_rate'][row], color="blue", label = "low rate")
-      colors_listll.append("blue")
+      plt.scatter(listingData["review_scores_communication"][row], listingData['host_response_rate'][row], color="blue")
+      if legend_two == 0:
+        plt.scatter(listingData["review_scores_communication"][row], listingData['host_response_rate'][row], color="blue", label = "low rate")
+        plt.legend()
+        legend_two = 1
+      # colors_listll.append("blue")
 
 # Plot the data
 plt.xlabel("Review scores communication")
 plt.ylabel("Response Rate")
 plt.title("Reviews and the response Rate")
-plt.legend()
+# plt.legend()
 plt.show()
 
 """#### price analysis"""
@@ -428,20 +436,20 @@ print(X)
 
 """#### train a model"""
 
-LinearRegression,
-# split the data for training and testing.
-print(X.shape)
-print(y.shape)
-xTrain, xTest, yTrain, yTest = train_test_split(X, y, test_size=0.2)
+# LinearRegression,
+# # split the data for training and testing.
+# print(X.shape)
+# print(y.shape)
+# xTrain, xTest, yTrain, yTest = train_test_split(X, y, test_size=0.2)
 
-model = LinearRegression()
+# model = LinearRegression()
 
-# train data
-model.fit(xTrain, yTrain)             
-# get a slope here
-print("slope = ", model.coef_)
-# get an intercept here                       
-print("intercept = ", model.intercept_)
+# # train data
+# model.fit(xTrain, yTrain)             
+# # get a slope here
+# print("slope = ", model.coef_)
+# # get an intercept here                       
+# print("intercept = ", model.intercept_)
 
 """#### trash"""
 
