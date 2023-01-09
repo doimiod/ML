@@ -227,13 +227,13 @@ for row in range(len(listingData["review_scores_location"])):
     if listingData["review_scores_location"][row] > avg_rate:
       plt.scatter(listingData["latitude"][row], listingData['longitude'][row], color="red")
       if legend_one == 0:
-        plt.scatter(listingData["latitude"][row], listingData['longitude'][row], color="red", label = "high rate")
+        plt.scatter(listingData["latitude"][row], listingData['longitude'][row], color="red", label = "high scores")
         plt.legend()
         legend_one = 1
     elif listingData["review_scores_location"][row] <= avg_rate:
       plt.scatter(listingData["latitude"][row], listingData['longitude'][row], color="blue")
       if legend_two == 0:
-        plt.scatter(listingData["latitude"][row], listingData['longitude'][row], color="blue", label = "low rate")
+        plt.scatter(listingData["latitude"][row], listingData['longitude'][row], color="blue", label = "low scores")
         plt.legend()
         legend_two = 1
       # colors_listll.append("blue")
